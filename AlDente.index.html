@@ -1,0 +1,840 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <title>Catalogo Prodotti & Fornitori</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    :root {
+      --bg: #0f172a;
+      --bg-soft: #111827;
+      --accent: #22c55e;
+      --accent-soft: #16a34a22;
+      --text: #e5e7eb;
+      --muted: #9ca3af;
+      --card: #020617;
+      --danger: #ef4444;
+      --radius: 14px;
+      --shadow-soft: 0 18px 45px rgba(15, 23, 42, 0.9);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text",
+        "Segoe UI", sans-serif;
+    }
+
+    body {
+      background: radial-gradient(circle at top, #1f2937 0, #020617 55%);
+      color: var(--text);
+      padding: 24px;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+    }
+
+    .app {
+      width: 100%;
+      max-width: 1100px;
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .title {
+      font-size: 1.5rem;
+      font-weight: 700;
+      letter-spacing: 0.03em;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .title span {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 30% 0%, #4ade80, #22c55e 45%, #166534);
+      box-shadow: 0 12px 30px rgba(34, 197, 94, 0.6);
+      font-size: 0.9rem;
+    }
+
+    .pill {
+      padding: 4px 10px;
+      border-radius: 999px;
+      border: 1px solid #22c55e55;
+      font-size: 0.75rem;
+      color: var(--muted);
+      background: #22c55e0a;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: minmax(0, 1.2fr) minmax(0, 1.5fr);
+      gap: 18px;
+      align-items: flex-start;
+    }
+
+    @media (max-width: 860px) {
+      body {
+        padding: 16px;
+      }
+
+      .layout {
+        grid-template-columns: minmax(0, 1fr);
+      }
+    }
+
+    .card {
+      background: linear-gradient(145deg, #020617ee, #020617f5);
+      border-radius: var(--radius);
+      border: 1px solid #1f2937;
+      box-shadow: var(--shadow-soft);
+      padding: 18px 18px 16px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .card::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at top left, #22c55e20 0, transparent 50%);
+      opacity: 0.5;
+      pointer-events: none;
+    }
+
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .card-header h2 {
+      font-size: 0.95rem;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--muted);
+    }
+
+    .tag {
+      font-size: 0.7rem;
+      padding: 3px 8px;
+      border-radius: 999px;
+      border: 1px solid #4b5563;
+      color: var(--muted);
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 10px;
+      position: relative;
+      z-index: 1;
+      margin-bottom: 10px;
+    }
+
+    @media (max-width: 720px) {
+      .form-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    .field label {
+      display: block;
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      margin-bottom: 4px;
+      color: var(--muted);
+    }
+
+    .field input,
+    .field select {
+      width: 100%;
+      padding: 7px 9px;
+      border-radius: 9px;
+      border: 1px solid #374151;
+      background: #020617;
+      color: var(--text);
+      font-size: 0.8rem;
+      outline: none;
+      transition: border-color 0.18s ease, box-shadow 0.18s ease, background 0.18s ease,
+        transform 0.08s ease;
+    }
+
+    .field input:focus,
+    .field select:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 1px #22c55e44;
+      background: #020617dd;
+      transform: translateY(-1px);
+    }
+
+    .field input::placeholder {
+      color: #6b7280;
+    }
+
+    .actions {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .btn {
+      border: none;
+      border-radius: 999px;
+      padding: 8px 16px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: linear-gradient(135deg, #22c55e, #16a34a);
+      color: #022c22;
+      box-shadow: 0 10px 26px rgba(34, 197, 94, 0.5);
+      transition: transform 0.12s ease, box-shadow 0.12s ease, filter 0.12s ease;
+    }
+
+    .btn span.icon {
+      display: inline-flex;
+      width: 18px;
+      height: 18px;
+      border-radius: 999px;
+      align-items: center;
+      justify-content: center;
+      background: #16a34a;
+      color: #bbf7d0;
+      font-size: 0.8rem;
+    }
+
+    .btn:hover {
+      transform: translateY(-1px) translateZ(0);
+      box-shadow: 0 14px 35px rgba(34, 197, 94, 0.7);
+      filter: brightness(1.03);
+    }
+
+    .btn:active {
+      transform: translateY(0);
+      box-shadow: 0 8px 20px rgba(22, 163, 74, 0.6);
+    }
+
+    .hint {
+      font-size: 0.7rem;
+      color: var(--muted);
+    }
+
+    .search-box {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: #020617;
+      border-radius: 999px;
+      padding: 7px 10px;
+      border: 1px solid #374151;
+      box-shadow: inset 0 0 0 1px #020617;
+      transition: border-color 0.18s ease, box-shadow 0.18s ease, background 0.18s ease;
+    }
+
+    .search-box.focused {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 1px #22c55e44;
+      background: #020617ee;
+    }
+
+    .search-icon {
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: radial-gradient(circle at 30% 0%, #22c55e, #16a34a);
+      color: #dcfce7;
+      font-size: 0.8rem;
+    }
+
+    .search-box input {
+      border: none;
+      background: transparent;
+      outline: none;
+      color: var(--text);
+      font-size: 0.85rem;
+      flex: 1;
+    }
+
+    .search-box input::placeholder {
+      color: #6b7280;
+    }
+
+    .chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 6px;
+    }
+
+    .chip {
+      font-size: 0.7rem;
+      padding: 3px 9px;
+      border-radius: 999px;
+      background: #111827;
+      border: 1px solid #374151;
+      color: var(--muted);
+      cursor: pointer;
+      transition: background 0.12s ease, transform 0.08s ease, border-color 0.15s ease,
+        color 0.15s ease;
+    }
+
+    .chip.active {
+      background: #22c55e1f;
+      border-color: var(--accent);
+      color: #bbf7d0;
+    }
+
+    .chip:hover {
+      transform: translateY(-1px);
+    }
+
+    .list {
+      max-height: 380px;
+      overflow: auto;
+      margin-top: 10px;
+      padding-right: 2px;
+    }
+
+    .list::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    .list::-webkit-scrollbar-track {
+      background: #020617;
+    }
+
+    .list::-webkit-scrollbar-thumb {
+      background: #1f2937;
+      border-radius: 999px;
+    }
+
+    .product-card {
+      border-radius: 12px;
+      border: 1px solid #111827;
+      background: linear-gradient(135deg, #020617, #020617f5);
+      padding: 10px 10px 9px;
+      margin-bottom: 8px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      position: relative;
+      transition: border-color 0.18s ease, transform 0.08s ease, box-shadow 0.18s ease,
+        background 0.18s ease;
+    }
+
+    .product-card:hover {
+      border-color: #22c55e55;
+      transform: translateY(-1px);
+      box-shadow: 0 12px 30px rgba(15, 23, 42, 0.9);
+      background: radial-gradient(circle at top left, #22c55e10, #020617 60%);
+    }
+
+    .product-main {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 10px;
+    }
+
+    .product-info {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+
+    .product-name {
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      font-size: 0.9rem;
+    }
+
+    .category-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.7rem;
+      color: var(--muted);
+    }
+
+    .category-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--accent);
+      box-shadow: 0 0 0 4px #22c55e22;
+    }
+
+    .badge {
+      font-size: 0.65rem;
+      padding: 3px 6px;
+      border-radius: 999px;
+      border: 1px solid #22c55e55;
+      color: #bbf7d0;
+      background: #22c55e1a;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .suppliers {
+      margin-top: 4px;
+      border-radius: 9px;
+      background: #020617;
+      border: 1px dashed #1f2937;
+      padding: 6px 7px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .supplier-pill {
+      font-size: 0.7rem;
+      padding: 3px 7px;
+      border-radius: 999px;
+      background: #020617;
+      border: 1px solid #111827;
+      color: var(--muted);
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      position: relative;
+    }
+
+    .supplier-pill.best {
+      border-color: var(--accent);
+      background: #22c55e17;
+      color: #bbf7d0;
+    }
+
+    .supplier-price {
+      font-weight: 600;
+      color: #e5e7eb;
+      font-size: 0.75rem;
+    }
+
+    .flag {
+      font-size: 0.6rem;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: #22c55eaa;
+      border-radius: 999px;
+      padding: 2px 5px;
+      border: 1px solid #22c55e44;
+      background: rgba(34, 197, 94, 0.08);
+    }
+
+    .delete-btn {
+      border: none;
+      background: transparent;
+      color: #6b7280;
+      cursor: pointer;
+      font-size: 0.8rem;
+      padding: 4px;
+      border-radius: 999px;
+      transition: background 0.12s ease, color 0.12s ease, transform 0.08s ease;
+    }
+
+    .delete-btn:hover {
+      background: #ef44441a;
+      color: var(--danger);
+      transform: translateY(-1px);
+    }
+
+    .empty {
+      font-size: 0.8rem;
+      color: var(--muted);
+      padding: 18px 6px 8px;
+      text-align: center;
+    }
+
+    .status-bar {
+      margin-top: 6px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.7rem;
+      color: var(--muted);
+      gap: 10px;
+    }
+
+    .status-bar span strong {
+      color: #e5e7eb;
+    }
+
+    .status-dot {
+      position: relative;
+      padding-left: 12px;
+    }
+
+    .status-dot::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 50%;
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--accent);
+      transform: translateY(-50%);
+      box-shadow: 0 0 0 4px #22c55e22;
+    }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <header class="header">
+      <div class="title">
+        <span>€</span>
+        <div>
+          Catalogo Fornitori
+          <div style="font-size: 0.8rem; color: #9ca3af; font-weight: 400">
+            Prodotti, categorie, fornitori e prezzi in un unico posto
+          </div>
+        </div>
+      </div>
+      <div class="pill">Dati salvati solo in questo browser</div>
+    </header>
+
+    <section class="layout">
+      <section class="card">
+        <div class="card-header">
+          <h2>Nuovo prodotto</h2>
+          <span class="tag">Inserimento rapido</span>
+        </div>
+
+        <div class="form-grid">
+          <div class="field">
+            <label>Prodotto</label>
+            <input id="productName" type="text" placeholder="Es. Gin Mare" />
+          </div>
+          <div class="field">
+            <label>Categoria</label>
+            <input id="productCategory" type="text" placeholder="Es. Distillati" />
+          </div>
+          <div class="field">
+            <label>Fornitore</label>
+            <input id="productSupplier" type="text" placeholder="Es. Campari" />
+          </div>
+          <div class="field">
+            <label>Prezzo (€)</label>
+            <input
+              id="productPrice"
+              type="number"
+              min="0"
+              step="0.01"
+              placeholder="Es. 21.50"
+            />
+          </div>
+        </div>
+
+        <div class="actions">
+          <button id="addProductBtn" class="btn">
+            <span class="icon">+</span>
+            Aggiungi / aggiorna prodotto
+          </button>
+          <span class="hint">
+            Se aggiungi di nuovo lo stesso prodotto con un altro fornitore,
+            verrà collegato automaticamente.
+          </span>
+        </div>
+      </section>
+
+      <section class="card">
+        <div class="card-header">
+          <h2>Ricerca</h2>
+          <span class="tag">Miglior prezzo per prodotto</span>
+        </div>
+
+        <div class="search-box" id="searchBox">
+          <div class="search-icon">🔍</div>
+          <input
+            id="searchInput"
+            type="text"
+            placeholder="Cerca per nome prodotto (es. Gin Mare)..."
+          />
+        </div>
+
+        <div class="chips" id="categoryChips"></div>
+
+        <div class="status-bar">
+          <span class="status-dot">
+            <strong id="productCount">0</strong> prodotti in elenco
+          </span>
+          <span>
+            Filtrati: <strong id="filteredCount">0</strong> · Categorie:
+            <strong id="categoryCount">0</strong>
+          </span>
+        </div>
+
+        <div class="list" id="productList"></div>
+      </section>
+    </section>
+  </main>
+
+  <script>
+    const STORAGE_KEY = "supplierCatalog_v1";
+
+    let products = JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
+
+    const productNameInput = document.getElementById("productName");
+    const productCategoryInput = document.getElementById("productCategory");
+    const productSupplierInput = document.getElementById("productSupplier");
+    const productPriceInput = document.getElementById("productPrice");
+    const addProductBtn = document.getElementById("addProductBtn");
+    const searchInput = document.getElementById("searchInput");
+    const searchBox = document.getElementById("searchBox");
+    const productList = document.getElementById("productList");
+    const productCount = document.getElementById("productCount");
+    const filteredCount = document.getElementById("filteredCount");
+    const categoryCount = document.getElementById("categoryCount");
+    const categoryChips = document.getElementById("categoryChips");
+
+    let activeCategory = "tutte";
+
+    function save() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(products));
+    }
+
+    function getCategories() {
+      const set = new Set(products.map((p) => p.category.trim()).filter(Boolean));
+      return Array.from(set).sort((a, b) => a.localeCompare(b));
+    }
+
+    function renderChips() {
+      const categories = getCategories();
+      categoryChips.innerHTML = "";
+
+      const allChip = document.createElement("button");
+      allChip.textContent = "Tutte";
+      allChip.className = "chip" + (activeCategory === "tutte" ? " active" : "");
+      allChip.addEventListener("click", () => {
+        activeCategory = "tutte";
+        renderChips();
+        renderList();
+      });
+      categoryChips.appendChild(allChip);
+
+      categories.forEach((cat) => {
+        const chip = document.createElement("button");
+        chip.textContent = cat;
+        chip.className =
+          "chip" + (activeCategory === cat.toLowerCase() ? " active" : "");
+        chip.addEventListener("click", () => {
+          activeCategory = cat.toLowerCase();
+          renderChips();
+          renderList();
+        });
+        categoryChips.appendChild(chip);
+      });
+
+      categoryCount.textContent = categories.length;
+    }
+
+    function renderList() {
+      const term = searchInput.value.trim().toLowerCase();
+      const filtered = products.filter((p) => {
+        const bySearch = p.name.toLowerCase().includes(term);
+        const byCat =
+          activeCategory === "tutte" ||
+          (p.category || "").toLowerCase() === activeCategory;
+        return bySearch && byCat;
+      });
+
+      productList.innerHTML = "";
+      productCount.textContent = products.length;
+      filteredCount.textContent = filtered.length;
+
+      if (!filtered.length) {
+        const span = document.createElement("div");
+        span.className = "empty";
+        span.textContent = "Nessun prodotto trovato. Aggiungi qualcosa dal pannello a sinistra.";
+        productList.appendChild(span);
+        return;
+      }
+
+      const grouped = {};
+      filtered.forEach((p) => {
+        const key = p.name.toLowerCase();
+        if (!grouped[key]) {
+          grouped[key] = { ...p, suppliers: [] };
+        }
+        grouped[key].suppliers.push({
+          supplier: p.supplier,
+          price: p.price,
+        });
+      });
+
+      Object.values(grouped).forEach((item) => {
+        const best = item.suppliers.reduce(
+          (min, s) => (s.price < min.price ? s : min),
+          item.suppliers[0]
+        );
+
+        const card = document.createElement("article");
+        card.className = "product-card";
+
+        const main = document.createElement("div");
+        main.className = "product-main";
+
+        const info = document.createElement("div");
+        info.className = "product-info";
+
+        const name = document.createElement("div");
+        name.className = "product-name";
+        name.textContent = item.name;
+
+        const cat = document.createElement("div");
+        cat.className = "category-pill";
+        cat.innerHTML = `<span class="category-dot"></span>${item.category || "Senza categoria"}`;
+
+        info.appendChild(name);
+        info.appendChild(cat);
+
+        const badge = document.createElement("div");
+        badge.className = "badge";
+        badge.innerHTML = `<span class="flag">Best price</span> € ${best.price.toFixed(
+          2
+        )} · ${best.supplier}`;
+
+        const deleteBtn = document.createElement("button");
+        deleteBtn.className = "delete-btn";
+        deleteBtn.innerHTML = "✕";
+        deleteBtn.title = "Elimina tutti i fornitori per questo prodotto";
+        deleteBtn.addEventListener("click", () => {
+          if (
+            confirm(
+              `Vuoi eliminare tutti i fornitori per il prodotto "${item.name}"?`
+            )
+          ) {
+            products = products.filter(
+              (p) => p.name.toLowerCase() !== item.name.toLowerCase()
+            );
+            save();
+            renderChips();
+            renderList();
+          }
+        });
+
+        main.appendChild(info);
+        const right = document.createElement("div");
+        right.style.display = "flex";
+        right.style.flexDirection = "column";
+        right.style.alignItems = "flex-end";
+        right.style.gap = "4px";
+        right.appendChild(badge);
+        right.appendChild(deleteBtn);
+
+        main.appendChild(right);
+
+        const suppliers = document.createElement("div");
+        suppliers.className = "suppliers";
+
+        item.suppliers
+          .slice()
+          .sort((a, b) => a.price - b.price)
+          .forEach((s) => {
+            const pill = document.createElement("div");
+            pill.className =
+              "supplier-pill" +
+              (s.price === best.price && s.supplier === best.supplier
+                ? " best"
+                : "");
+            pill.innerHTML = `<span class="supplier-price">€ ${s.price.toFixed(
+              2
+            )}</span> <span>${s.supplier}</span>`;
+            suppliers.appendChild(pill);
+          });
+
+        card.appendChild(main);
+        card.appendChild(suppliers);
+        productList.appendChild(card);
+      });
+    }
+
+    function handleAddProduct() {
+      const name = productNameInput.value.trim();
+      const category = productCategoryInput.value.trim() || "Senza categoria";
+      const supplier = productSupplierInput.value.trim();
+      const price = parseFloat(productPriceInput.value);
+
+      if (!name || !supplier || isNaN(price)) {
+        alert("Inserisci almeno prodotto, fornitore e prezzo valido.");
+        return;
+      }
+
+      products.push({
+        id: Date.now(),
+        name,
+        category,
+        supplier,
+        price,
+      });
+
+      save();
+      renderChips();
+      renderList();
+
+      productSupplierInput.value = "";
+      productPriceInput.value = "";
+      productSupplierInput.focus();
+
+      if (!productNameInput.dataset.touched) {
+        productNameInput.dataset.touched = "1";
+      }
+    }
+
+    addProductBtn.addEventListener("click", handleAddProduct);
+    [productNameInput, productCategoryInput, productSupplierInput, productPriceInput].forEach(
+      (el) => {
+        el.addEventListener("keydown", (e) => {
+          if (e.key === "Enter") {
+            e.preventDefault();
+            handleAddProduct();
+          }
+        });
+      }
+    );
+
+    searchInput.addEventListener("input", renderList);
+    searchInput.addEventListener("focus", () =>
+      searchBox.classList.add("focused")
+    );
+    searchInput.addEventListener("blur", () =>
+      searchBox.classList.remove("focused")
+    );
+
+    renderChips();
+    renderList();
+  </script>
+</body>
+</html>
